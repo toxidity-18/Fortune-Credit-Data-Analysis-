@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import sqlite3
-import matplotlib.pyplot as plt
 
 # ==========================================
 # 1. PAGE CONFIGURATION
@@ -24,36 +23,18 @@ def load_and_clean_data():
     Loads the raw CSV data and performs necessary cleaning operations.
     Cached to prevent reloading and recalculating on every user interaction.
     """
-    # Load raw data
     data = pd.read_csv('data/fortune_harvest_data.csv')
-    
-    # Standardize text values
     data['Repayment_Status'] = data['Repayment_Status'].replace('repayed', 'Repaid')
-    
-    # Handle missing numerical data using the median to avoid skewing
     median_loan = data['Loan_Amount'].median()
     data['Loan_Amount'] = data['Loan_Amount'].fillna(median_loan)
-    
-    # Handle missing categorical data
     data['Expected_Harvest_Date'] = data['Expected_Harvest_Date'].replace('N/A', pd.NA)
-    
-    # Convert string dates to datetime objects for calculation
     data['Disbursement_Date'] = pd.to_datetime(data['Disbursement_Date'])
     data['Expected_Harvest_Date'] = pd.to_datetime(data['Expected_Harvest_Date'])
-    
-    # Calculate the days between loan disbursement and expected harvest
     data['Days_to_Harvest'] = (data['Expected_Harvest_Date'] - data['Disbursement_Date']).dt.days
-    
-    # Label non-agricultural loans appropriately
     data['Days_to_Harvest'] = data['Days_to_Harvest'].fillna('Non-Ag')
-    
-    # CRITICAL FIX: Explicitly cast the column to string. 
-    # This prevents PyArrow from crashing when it sees a mix of numbers and the string 'Non-Ag'
     data['Days_to_Harvest'] = data['Days_to_Harvest'].astype(str)
-    
     return data
 
-# Execute data loading
 loan_data = load_and_clean_data()
 
 # ==========================================
@@ -65,7 +46,6 @@ customer_filter = st.sidebar.selectbox(
     ['All', 'Farmer', 'Boda Rider', 'Trader']
 )
 
-# Apply filter. Using .copy() prevents Pandas SettingWithCopyWarning.
 if customer_filter != 'All':
     filtered_data = loan_data[loan_data['Customer_Type'] == customer_filter].copy()
 else:
@@ -89,11 +69,9 @@ st.markdown("---")
 # ==========================================
 # 5. SQL ANALYSIS LOGIC
 # ==========================================
-# Create an in-memory SQLite database for the filtered data
 conn = sqlite3.connect(':memory:')
 filtered_data.to_sql('loans', conn, index=False, if_exists='replace')
 
-# Query 1: Default rate by customer segment
 query_default_rate = """
     SELECT 
         Customer_Type, 
@@ -104,7 +82,6 @@ query_default_rate = """
     ORDER BY Default_Rate DESC;
 """
 
-# Query 2: Repayment rate based on harvest timing (Farmers only)
 query_harvest_timing = """
     SELECT 
         CASE 
@@ -119,39 +96,28 @@ query_harvest_timing = """
     ORDER BY Repayment_Rate DESC;
 """
 
-# Execute queries
 df_default_rate = pd.read_sql_query(query_default_rate, conn)
 df_harvest_timing = pd.read_sql_query(query_harvest_timing, conn)
 conn.close()
 
 # ==========================================
-# 6. DATA VISUALIZATION
+# 6. DATA VISUALIZATION (NATIVE STREAMLIT CHARTS)
 # ==========================================
 chart_col1, chart_col2 = st.columns(2)
 
 # Chart 1: Default Rate by Customer Type
 with chart_col1:
     st.subheader("Default Rate by Customer Type")
-    fig1, ax1 = plt.subplots(figsize=(8, 4))
-    ax1.bar(df_default_rate['Customer_Type'], df_default_rate['Default_Rate'], color=['#d9534f', '#f0ad4e', '#5cb85c'])
-    ax1.set_ylabel('Default Rate (%)')
-    ax1.set_xlabel('Customer Type')
-    ax1.set_ylim(0, 100) # Keep Y-axis consistent
-    st.pyplot(fig1)
-    plt.close(fig1) # Close figure to free memory
+    # Set Customer_Type as the index for the chart
+    chart_data_1 = df_default_rate.set_index('Customer_Type')
+    st.bar_chart(chart_data_1)
 
 # Chart 2: Farmer Repayment Sweet Spot
 with chart_col2:
     st.subheader("Farmer Repayment Rate by Loan Timing")
-    
     if not df_harvest_timing.empty:
-        fig2, ax2 = plt.subplots(figsize=(8, 4))
-        ax2.bar(df_harvest_timing['Harvest_Timing'], df_harvest_timing['Repayment_Rate'], color='#428bca')
-        ax2.set_ylabel('Repayment Rate (%)')
-        ax2.set_xlabel('Days Before Harvest')
-        ax2.set_ylim(0, 100)
-        st.pyplot(fig2)
-        plt.close(fig2) # Close figure to free memory
+        chart_data_2 = df_harvest_timing.set_index('Harvest_Timing')
+        st.bar_chart(chart_data_2)
     else:
         st.info("Select 'Farmer' or 'All' in the sidebar to view the harvest timing analysis.")
 
@@ -160,5 +126,4 @@ with chart_col2:
 # ==========================================
 st.markdown("---")
 st.subheader("Raw Data View")
-# CRITICAL FIX: Updated deprecated 'use_container_width' to 'width="stretch"'
 st.dataframe(filtered_data, width="stretch")
