@@ -8,3 +8,7 @@ venv/
 .venv/
 .DS_Store
 .vscode/
+*.xlsx
+*.csv
+!data/fortune_harvest_data.csv
+STEP.MD
