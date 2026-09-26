@@ -81,6 +81,6 @@ Fortune-Credit-Data-Analysis/
 ---
 
 ## Live Demo
-[Click here to view the live interactive dashboard](INSERT_YOUR_STREAMLIT_LINK_HERE)
+[Click here to view the live interactive dashboard](https://fortunecreditriskanalysis.streamlit.app/)
 
 ---
