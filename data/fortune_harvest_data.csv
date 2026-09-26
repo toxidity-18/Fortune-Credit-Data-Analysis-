@@ -1,0 +1,11 @@
+﻿Loan_ID,Customer_Type,Loan_Amount,Disbursement_Date,Expected_Harvest_Date,Repayment_Status,Region
+FC001,Farmer,20000,2023-01-10,2023-04-10,Repaid,Rural
+FC002,Farmer,25000,2023-01-15,2023-08-15,Defaulted,Rural
+FC003,Boda Rider,50000,2023-02-01,N/A,Repaid,Nairobi
+FC004,Farmer,15000,2023-02-10,2023-05-10,repayed,Rural
+FC005,Trader,10000,2023-03-01,N/A,Repaid,Nairobi
+FC006,Farmer,,2023-03-15,2023-06-15,Defaulted,Rural
+FC007,Farmer,30000,2023-04-01,2023-07-01,Repaid,Rural
+FC008,Boda Rider,55000,2023-04-10,N/A,Late,Mombasa
+FC009,Farmer,20000,2023-05-05,2023-08-05,Repaid,Rural
+FC010,Farmer,22000,2023-05-20,2023-11-20,Defaulted,Rural

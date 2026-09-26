@@ -1,0 +1,11 @@
+Loan_ID,Customer_Type,Loan_Amount,Disbursement_Date,Expected_Harvest_Date,Repayment_Status,Region,Days_to_Harvest
+FC001,Farmer,20000.0,2023-01-10,2023-04-10,Repaid,Rural,90.0
+FC002,Farmer,25000.0,2023-01-15,2023-08-15,Defaulted,Rural,212.0
+FC003,Boda Rider,50000.0,2023-02-01,,Repaid,Nairobi,Non-Ag
+FC004,Farmer,15000.0,2023-02-10,2023-05-10,Repaid,Rural,89.0
+FC005,Trader,10000.0,2023-03-01,,Repaid,Nairobi,Non-Ag
+FC006,Farmer,22000.0,2023-03-15,2023-06-15,Defaulted,Rural,92.0
+FC007,Farmer,30000.0,2023-04-01,2023-07-01,Repaid,Rural,91.0
+FC008,Boda Rider,55000.0,2023-04-10,,Late,Mombasa,Non-Ag
+FC009,Farmer,20000.0,2023-05-05,2023-08-05,Repaid,Rural,92.0
+FC010,Farmer,22000.0,2023-05-20,2023-11-20,Defaulted,Rural,184.0
