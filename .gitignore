@@ -11,4 +11,8 @@ venv/
 *.xlsx
 *.csv
 !data/fortune_harvest_data.csv
-STEP.MD
+STEP.MD*.png
+Pipfile
+Pipfile.lock
+DOCUMENTATION.md
+*.xlsx
