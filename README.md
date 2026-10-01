@@ -1,89 +1,125 @@
 # Fortune Credit: Seasonal Credit Risk Analysis
 
 ## Project Overview
-This project is an interactive data analysis dashboard built as a case study for Fortune Credit, a licensed Digital Credit Provider and microfinance institution in Kenya. It analyzes loan portfolio data to identify credit risk patterns, specifically focusing on the impact of seasonal harvest cycles on smallholder farmer loan repayments.
 
-## Business Problem
-Microfinance institutions often face elevated default rates in agricultural lending. A key operational challenge is determining the optimal time to disburse loans to farmers. Disbursing too early or too late in the agricultural cycle can create liquidity gaps for the borrower, leading to missed repayments and increased risk for the lender.
+A data analysis case study exploring repayment patterns in agricultural lending using simulated loan data.
 
-## Illustrative Observations (Proof of Concept)
-Note: This analysis uses a small mock dataset (n=10 total loans, n=7 farmer loans) to demonstrate the analytical pipeline. These findings are illustrative and require real historical data to establish statistical significance or causal effects.
+The project examines whether the timing of a farmer's loan relative to the expected harvest is associated with different repayment patterns.
 
-By engineering a "Harvest Gap" feature (the number of days between loan disbursement and expected harvest), this project isolates timing risk in agricultural loans. 
+> **Note:** This is an independent case study using a small simulated dataset. It is not based on Fortune Credit's internal data.
 
-Mock Dataset Observations:
-1. Risk by Segment: Default rates vary across customer types, highlighting the need for tailored risk models for Boda Riders, Traders, and Farmers.
-2. The Repayment Pattern: In this mock dataset, both farmer loans issued 31 to 90 days before harvest were repaid (2/2, 100%), compared with two of five loans issued over 90 days before harvest (2/5, 40%). There were zero observations in the 0 to 30 day window. More representative data, including actual loan due dates and actual repayment dates, is needed to evaluate if repayment truly aligns with harvest income.
+## Business Question
 
----
+**Could the timing of an agricultural loan relative to the expected harvest be associated with different repayment patterns?**
 
-## Code Explanation & Technical Implementation
+To explore this, I created a **Harvest Gap** feature representing the number of days between loan disbursement and the expected harvest date.
 
-This project was built to demonstrate end-to-end data engineering and analysis skills, with a strong focus on analytical correctness and reproducibility.
+## Key Observations
 
-### 1. Centralized Data Processing & Validation
-A shared `data_processing.py` module enforces the DRY (Don't Repeat Yourself) principle, ensuring consistency across scripts. It includes robust validation checks for:
-- Missing required columns and duplicate `Loan_ID`s.
-- Negative loan amounts, invalid dates, and negative harvest gaps.
-- Unexpected repayment statuses.
-- Imputation Flagging: Missing `Loan_Amount` values are imputed with the median. A new `Imputed_Loan_Amount` boolean column flags these rows to maintain transparency, as median imputation preserves the median but can shift the mean.
+The dataset contains:
 
-### 2. Numeric Harvest Timing & SQL Logic
-A critical fix was applied to keep the `Days_to_Harvest` column strictly numeric. Missing values for non-agricultural loans (Boda Riders, Traders) are represented as `NaN`, which translates to `NULL` in SQLite. Display labels (e.g., '31-90 Days') are created separately within the SQL `CASE WHEN` statement. This prevents text-sorting bugs (where "100" incorrectly sorts before "30") and allows clean SQL filtering using `IS NOT NULL`.
+- **10 total loans**
+- **7 farmer loans**
+- **2 farmer loans** in the 31–90 day group
+- **5 farmer loans** in the 90+ day group
+- **0 farmer loans** in the 0–30 day group
 
-### 3. Repayment Metrics & Visualization
-- Metric Definition: "Late" loans are now explicitly tracked and displayed separately. This ensures that a 0% default rate is not misinterpreted as a 100% repayment rate, providing an accurate picture of portfolio health.
-- Interactive Dashboard (`app.py`): Uses native Streamlit charts to plot only the `Default_Rate` percentage, with raw loan counts displayed separately in a data table below the chart.
-- Static Reporting (`clean_data.py`): Uses Matplotlib and OpenPyXL to generate high-resolution PNG charts and export structured Excel reports for offline stakeholder review.
+In this small dataset:
 
----
+- 31–90 days: **2/2 loans repaid (100%)**
+- 90+ days: **2/5 loans repaid (40%)**
 
-## Technology Stack
-- Python: Core programming language for backend logic.
-- Pandas: Data manipulation, missing value handling, and datetime calculations.
-- SQLite: In-memory relational database for executing intermediate-level SQL queries.
-- Streamlit: Framework for building the interactive, browser-based data application.
-- Matplotlib & OpenPyXL: Libraries for generating static visualizations and Excel exports.
+These are descriptive observations only. The dataset is too small to establish statistical significance or causal relationships.
 
----
+## Analysis
+
+The project uses:
+
+- **Python & Pandas** for data cleaning and preparation
+- **SQLite & SQL** for analysis and aggregation
+- **Streamlit** for the interactive dashboard
+- **Matplotlib** for visualizations
+- **OpenPyXL** for Excel reporting
+
+The data processing includes validation of:
+
+- Missing and duplicate loan IDs
+- Invalid dates
+- Negative loan amounts
+- Invalid harvest gaps
+- Unexpected repayment statuses
+
+`Days_to_Harvest` is kept as a numeric field, while timing groups such as `31–90 Days` are created separately for reporting and visualization.
+
+Repayment outcomes are also separated into **Repaid, Late, and Defaulted** rather than treating them as the same outcome.
 
 ## Project Structure
+
 ```text
 Fortune-Credit-Data-Analysis-/
-├── app.py                      # Main Streamlit web application
-├── clean_data.py               # Script for static chart generation and Excel export
-├── data_processing.py          # Centralized data loading, validation, and cleaning logic
+├── app.py
+├── clean_data.py
+├── data_processing.py
 ├── data/
-│   └── fortune_harvest_data.csv # Raw mock dataset
-├── requirements.txt            # Python dependencies
-└── README.md                   # Project documentation
+│   └── fortune_harvest_data.csv
+├── requirements.txt
+└── README.md
 ```
 
----
+## Running the Project
 
-## How to Run Locally
+### 1. Clone the repository
 
-1. Clone this repository to your local machine:
-   ```bash
-   git clone https://github.com/toxidity-18/Fortune-Credit-Data-Analysis-.git
-   cd Fortune-Credit-Data-Analysis-
-   ```
-2. Create a virtual environment (recommended) and install the required dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Option A: Run the Interactive Dashboard
-   ```bash
-   streamlit run app.py
-   ```
-4. Option B: Generate Static Reports
-   ```bash
-   python clean_data.py
-   ```
-   (This will generate chart1_default_rate.png, chart2_farmer_sweet_spot.png, and Fortune_Credit_Dashboard.xlsx in your root directory).
-
----
-
-## Live Demo
-[Live interactive dashboard](https://fortunecreditriskanalysis.streamlit.app/)
+```bash
+git clone https://github.com/toxidity-18/Fortune-Credit-Data-Analysis-.git
+cd Fortune-Credit-Data-Analysis-
 ```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run the dashboard
+
+```bash
+streamlit run app.py
+```
+
+### 4. Generate static reports
+
+```bash
+python clean_data.py
+```
+
+## AI-Assisted Development
+
+AI-assisted development tools were used throughout the project to help with implementation, debugging, understanding unfamiliar concepts, and improving the code.
+
+I reviewed, tested, and modified the generated implementations while working through the analytical and technical issues identified during development.
+
+## Limitations
+
+The dataset is intentionally small and simulated. The results should not be used to make real lending decisions.
+
+A larger historical dataset with actual disbursement dates, harvest dates, repayment dates, loan terms, and customer information would be required for more meaningful analysis.
+
+## What I Learned
+
+This project helped me strengthen my understanding of:
+
+- Data cleaning and validation
+- SQL-based analysis
+- Feature engineering
+- Financial data analysis
+- Data visualization
+- Analytical reasoning
+- Reproducible project setup
+- Communicating findings without overstating the evidence
+
+## Links
+
+**Live Dashboard:** https://fortunecreditriskanalysis.streamlit.app/
+
+**GitHub Repository:** https://github.com/toxidity-18/Fortune-Credit-Data-Analysis-
